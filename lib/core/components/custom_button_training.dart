@@ -12,7 +12,7 @@ class CustomButtonTraining extends StatelessWidget {
     super.key,
     required this.title,
     this.prefixIcon,
-    this.BackgroundColor = AppColors.blue,
+    this.BackgroundColor = Colors.blueGrey,
   });
 
   @override
@@ -36,7 +36,7 @@ class CustomButtonTraining extends StatelessWidget {
             style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              backgroundColor: AppColors.blue,
+              backgroundColor: Colors.blueGrey,
               color: AppColors.white,
             ),
           ),

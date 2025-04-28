@@ -1,7 +1,12 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:training/core/components/custom_button_training.dart';
 import 'package:training/core/extensions/build_context_ext.dart';
+import 'package:training/presentation/auth/bloc/bloc_login_bloc.dart';
+import 'package:training/presentation/home/pages/home_page.dart';
 import 'package:training/presentation/home/pages/main_page.dart';
 
 import '../../../core/core.dart';
@@ -59,23 +64,21 @@ class _LoginPageState extends State<LoginPage> {
                 const Text(
                   'Hello There',
                   style: TextStyle(
-                    fontSize: 30,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white
-                  ),
+                      fontSize: 30,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white),
                   textAlign: TextAlign.center,
                 ),
                 const SpaceHeight(80),
                 CustomTextField(
                   controller: emailController,
                   label: 'Email Address',
-                  
                 ),
                 const SpaceHeight(20),
                 CustomTextField(
                   controller: passwordController,
                   label: 'Password',
-                  obscureText: isShowPassword,                  
+                  obscureText: isShowPassword,
                   suffixIcon: IconButton(
                     icon: Icon(
                       isShowPassword ? Icons.visibility_off : Icons.visibility,
@@ -88,28 +91,61 @@ class _LoginPageState extends State<LoginPage> {
                     },
                   ),
                 ),
-
                 const SpaceHeight(40),
-
                 CustomButtonTraining(
                   title: 'Sign In',
-                  onPressed: (){},
+                  onPressed: () {},
                 ),
-
                 const SpaceHeight(20),
-
                 CustomButtonTraining(
                   title: 'Attendence with Face ID',
                   prefixIcon: Assets.icons.attendance.svg(),
-                  onPressed: (){},
+                  onPressed: () {},
                 ),
+                const SpaceHeight(20),
+                BlocListener<LoginBloc, LoginState>(
+                  listener: (context, state) {
+                    if(state is LoginSuccess) {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (context) => HomePage()),
+                      );
+                    }
 
-                // CustomButton.filled(
-                //   label: 'Login',
-                //   onPressed: () {
-                //     context.pushReplacement(const MainPage());
-                //   },
-                // ),
+                    if(state is LoginFailure) {
+                      final errorMessage = jsonDecode(state.message) ['message'];
+
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Center(
+                            child: Text(errorMessage)
+                          ),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                    }
+                  },
+                  child: BlocBuilder<LoginBloc, LoginState>(
+                    builder: (context, state) {
+                      if (state is LoginLoading) {
+                        return const Center(
+                          child: CircularProgressIndicator(),
+                        );
+                      }
+                      return CustomButton.filled(
+                        onPressed: () {
+                          context.read<LoginBloc>().add(
+                                LoginButtonPressed(
+                                  email: emailController.text,
+                                  password: passwordController.text,
+                                ),
+                              );
+                        },
+                        label: 'Login',
+                      );
+                    },
+                  ),
+                ),
               ],
             ),
           ),
